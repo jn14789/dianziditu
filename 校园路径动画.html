@@ -1,0 +1,106 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">
+    <title>轨迹回放</title>
+    <link rel="stylesheet" href="https://a.amap.com/jsapi_demos/static/demo-center/css/demo-center.css"/>
+    <style>
+        html, body, #container {
+            height: 100%;
+            width: 100%;
+        }
+
+        .input-card .btn{
+            margin-right: 1.2rem;
+            width: 9rem;
+        }
+
+        .input-card .btn:last-child{
+            margin-right: 0;
+        }
+    </style>
+</head>
+<body>
+<div id="container"></div>
+<div class="input-card">
+    <h4>轨迹回放控制</h4>
+    <div class="input-item">
+        <input type="button" class="btn" value="开始动画" id="start" onclick="startAnimation()"/>
+        <input type="button" class="btn" value="暂停动画" id="pause" onclick="pauseAnimation()"/>
+    </div>
+    <div class="input-item">
+        <input type="button" class="btn" value="继续动画" id="resume" onclick="resumeAnimation()"/>
+        <input type="button" class="btn" value="停止动画" id="stop" onclick="stopAnimation()"/>
+    </div>
+</div>
+<script type="text/javascript" src="https://webapi.amap.com/maps?v=2.0&key=63842f9645f597dfa91bb388e9702f77"></script>
+<script>
+    // JSAPI2.0 使用覆盖物动画必须先加载动画插件
+    AMap.plugin('AMap.MoveAnimation', function(){
+        var marker, lineArr = [[102.756028,25.061668],[102.756115,25.061682],[102.756122,25.06205],[102.756137,25.062041],[102.756257,25.061815],[102.756363,25.061711],[102.756394,25.061681],[102.756453,25.06159],[102.756715,25.061308],[102.75691,25.061099],[102.757379,25.060678],[102.758234,25.059786],[102.758249,25.059766],[102.758179,25.059593],[102.758118,25.05879],[102.757996,25.057714],[102.757981,25.057491],[102.757996,25.057292],[102.75804,25.05712],[102.758156,25.056881],[102.758336,25.056711],[102.758566,25.056588],[102.758565,25.0565],[102.758297,25.056456],[102.758161,25.056469],[102.757503,25.056553],[102.756203,25.056747],[102.756273,25.057227],[102.75586399,25.05728331]]
+
+        var map = new AMap.Map("container", {
+            resizeEnable: true,
+            center: [102.759575,25.06049756],
+            zoom: 17
+        });
+
+        marker = new AMap.Marker({
+            map: map,
+            position: [102.756028,25.061668],
+            icon: "https://a.amap.com/jsapi_demos/static/demo-center-v2/car.png",
+            offset: new AMap.Pixel(-13, -26),
+        });
+
+        // 绘制轨迹
+        var polyline = new AMap.Polyline({
+            map: map,
+            path: lineArr,
+            showDir:true,
+            strokeColor: "#28F",  //线颜色
+            // strokeOpacity: 1,     //线透明度
+            strokeWeight: 6,      //线宽
+            // strokeStyle: "solid"  //线样式
+        });
+
+        var passedPolyline = new AMap.Polyline({
+            map: map,
+            strokeColor: "#AF5",  //线颜色
+            strokeWeight: 6,      //线宽
+        });
+
+
+        marker.on('moving', function (e) {
+            passedPolyline.setPath(e.passedPath);
+            map.setCenter(e.target.getPosition(),true)
+        });
+
+        map.setFitView();
+
+        window.startAnimation = function startAnimation () {
+            marker.moveAlong(lineArr, {
+                // 每一段的时长
+                duration: 500,//可根据实际采集时间间隔设置
+                // JSAPI2.0 是否延道路自动设置角度在 moveAlong 里设置
+                autoRotation: true,
+            });
+        };
+
+        window.pauseAnimation = function () {
+            marker.pauseMove();
+        };
+
+        window.resumeAnimation = function () {
+            marker.resumeMove();
+        };
+
+        window.stopAnimation = function () {
+            marker.stopMove();
+        };
+    });
+   
+</script>
+</body>
+</html>
